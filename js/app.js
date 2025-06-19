@@ -9,8 +9,8 @@ let context;
         let timerInterval;
         let startTime;
 
-        const highTone = 60;
-        const lowTone = 20;
+        const highTone = 40;
+        const lowTone = 40;
 
 
 
@@ -81,7 +81,7 @@ let context;
 
             // Reset timer and ear
             currentEar = 'left';
-            document.getElementById('currentEar').textContent = 'Left Ear Active';
+            // document.getElementById('currentEar').textContent = 'Left Ear Active';
             startTime = Date.now();
 
             // Create binaural beats
@@ -115,7 +115,7 @@ let context;
             document.getElementById('startBtn').style.display = 'inline-block';
             document.getElementById('stopBtn').style.display = 'none';
             document.getElementById('status').textContent = 'Session stopped';
-            document.getElementById('currentEar').textContent = '';
+            // document.getElementById('currentEar').textContent = '';
 
             // Reset progress bar
             document.getElementById('progressFill').style.width = '0%';
@@ -132,7 +132,7 @@ let context;
             // Check if we need to switch ears at halfway point
             if (remainingSeconds <= totalSeconds / 2 && currentEar === 'left') {
                 currentEar = 'right';
-                document.getElementById('currentEar').textContent = 'Right Ear Active';
+                // document.getElementById('currentEar').textContent = 'Right Ear Active';
 
                 // Swap frequencies
                 if (oscillator1 && oscillator2) {
