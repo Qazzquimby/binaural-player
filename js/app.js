@@ -74,29 +74,17 @@ let context;
                 context.resume();
             }
 
-            // Stop any existing session
-            if (isPlaying) {
-                stopSession();
-            }
-
-            // Reset timer and ear
-            currentEar = 'left';
-            // document.getElementById('currentEar').textContent = 'Left Ear Active';
-            startTime = Date.now();
-
-            // Create binaural beats
             createBinauralBeats(highTone, lowTone);
 
             isPlaying = true;
             document.getElementById('startBtn').style.display = 'none';
-            document.getElementById('stopBtn').style.display = 'inline-block';
+            document.getElementById('pauseBtn').style.display = 'inline-block';
             document.getElementById('status').textContent = 'Session in progress...';
 
-            // Start countdown timer
             timerInterval = setInterval(updateTimer, 1000);
         }
 
-        function stopSession() {
+        function pauseSession() {
             if (oscillator1) {
                 oscillator1.stop();
                 oscillator1.disconnect();
@@ -113,16 +101,10 @@ let context;
             isPlaying = false;
 
             document.getElementById('startBtn').style.display = 'inline-block';
-            document.getElementById('stopBtn').style.display = 'none';
-            document.getElementById('status').textContent = 'Session stopped';
+            document.getElementById('pauseBtn').style.display = 'none';
+            document.getElementById('status').textContent = 'Session paused';
             // document.getElementById('currentEar').textContent = '';
 
-            // Reset progress bar
-            document.getElementById('progressFill').style.width = '0%';
-
-            // Reset timer display
-            remainingSeconds = totalSeconds;
-            updateTimerDisplay();
         }
 
         function updateTimer() {
