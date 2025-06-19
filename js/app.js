@@ -9,8 +9,8 @@ let context;
         let timerInterval;
         let startTime;
 
-        const highTone = 40;
-        const lowTone = 40;
+        const highTone = 60;
+        const lowTone = 20;
 
 
 
