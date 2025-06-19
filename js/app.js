@@ -3,18 +3,20 @@ let oscillator1, oscillator2;
 let gainNode1, gainNode2;
 let merger;
 let isPlaying = false;
+
 const totalSeconds = 60 * 60;
-let remainingSeconds = totalSeconds;
-let currentEar = 'left'; // Track which ear is active
+let totalElapsedSeconds = 0;
+let sessionSegmentStartTime;
+
+let currentEar = 'left';
 let timerInterval;
-let startTime;
 
 const highTone = 60;
 const lowTone = 20;
 
-
-// Initialize audio context
 function initAudioContext() {
+  if (context) return true;
+
   const contextClass = (window.AudioContext ||
     window.webkitAudioContext ||
     window.mozAudioContext ||
@@ -29,10 +31,8 @@ function initAudioContext() {
 }
 
 function createBinauralBeats(freq1, freq2) {
-  // Create channel merger for stereo output
   merger = context.createChannelMerger(2);
 
-  // Create first oscillator (left channel)
   oscillator1 = context.createOscillator();
   oscillator1.type = 'sine';
   oscillator1.frequency.value = freq1;
@@ -41,9 +41,8 @@ function createBinauralBeats(freq1, freq2) {
   gainNode1.gain.value = 0.1;
 
   oscillator1.connect(gainNode1);
-  gainNode1.connect(merger, 0, 0); // Connect to left channel
+  gainNode1.connect(merger, 0, 0);
 
-  // Create second oscillator (right channel)
   oscillator2 = context.createOscillator();
   oscillator2.type = 'sine';
   oscillator2.frequency.value = freq2;
@@ -52,12 +51,10 @@ function createBinauralBeats(freq1, freq2) {
   gainNode2.gain.value = 0.1;
 
   oscillator2.connect(gainNode2);
-  gainNode2.connect(merger, 0, 1); // Connect to right channel
+  gainNode2.connect(merger, 0, 1);
 
-  // Connect merger to destination
   merger.connect(context.destination);
 
-  // Start oscillators
   oscillator1.start();
   oscillator2.start();
 }
@@ -68,95 +65,83 @@ function startSession() {
     return;
   }
 
-  // Resume audio context if suspended (required by some browsers)
   if (context.state === 'suspended') {
     context.resume();
   }
 
-  createBinauralBeats(highTone, lowTone);
+  const freq1 = (currentEar === 'left') ? highTone : lowTone;
+  const freq2 = (currentEar === 'left') ? lowTone : highTone;
+  createBinauralBeats(freq1, freq2);
 
   isPlaying = true;
+  sessionSegmentStartTime = Date.now();
+
   document.getElementById('startBtn').style.display = 'none';
   document.getElementById('pauseBtn').style.display = 'inline-block';
   document.getElementById('status').textContent = 'Session in progress...';
 
   timerInterval = setInterval(updateTimer, 1000);
+  updateTimer();
 }
 
 function pauseSession() {
-  if (oscillator1) {
-    oscillator1.stop();
-    oscillator1.disconnect();
-  }
-  if (oscillator2) {
-    oscillator2.stop();
-    oscillator2.disconnect();
-  }
-  if (gainNode1) gainNode1.disconnect();
-  if (gainNode2) gainNode2.disconnect();
-  if (merger) merger.disconnect();
+  if (oscillator1) oscillator1.stop();
+  if (oscillator2) oscillator2.stop();
 
   clearInterval(timerInterval);
   isPlaying = false;
 
+  const elapsedInSegment = (Date.now() - sessionSegmentStartTime) / 1000;
+  totalElapsedSeconds += elapsedInSegment;
+
   document.getElementById('startBtn').style.display = 'inline-block';
   document.getElementById('pauseBtn').style.display = 'none';
   document.getElementById('status').textContent = 'Session paused';
-  // document.getElementById('currentEar').textContent = '';
+}
 
+function stopSession() {
+  if (oscillator1) oscillator1.stop();
+  if (oscillator2) oscillator2.stop();
+  clearInterval(timerInterval);
+  isPlaying = false;
+  document.getElementById('status').textContent = 'Session completed! Please let Tiffany know.';
+  document.getElementById('timer').textContent = 'Complete!';
 }
 
 function updateTimer() {
-  remainingSeconds--;
-  updateTimerDisplay();
+  const elapsedInSegment = (Date.now() - sessionSegmentStartTime) / 1000;
+  const currentTotalElapsed = Math.floor(totalElapsedSeconds + elapsedInSegment);
+  let remainingSeconds = totalSeconds - currentTotalElapsed;
 
-  // Check if we need to switch ears at halfway point
+  if (remainingSeconds < 0) {
+    remainingSeconds = 0;
+  }
+
+  updateTimerDisplay(remainingSeconds);
+
   if (remainingSeconds <= totalSeconds / 2 && currentEar === 'left') {
     currentEar = 'right';
-    // document.getElementById('currentEar').textContent = 'Right Ear Active';
-
-    // Swap frequencies
     if (oscillator1 && oscillator2) {
-      const freq1 = oscillator1.frequency.value;
-      const freq2 = oscillator2.frequency.value;
-      oscillator1.frequency.value = freq2;
-      oscillator2.frequency.value = freq1;
+      oscillator1.frequency.value = lowTone;
+      oscillator2.frequency.value = highTone;
     }
   }
 
-  // Update progress bar
-  const progress = ((totalSeconds - remainingSeconds) / totalSeconds) * 100;
+  const progress = (currentTotalElapsed / totalSeconds) * 100;
   document.getElementById('progressFill').style.width = progress + '%';
 
   if (remainingSeconds <= 0) {
     stopSession();
-    document.getElementById('status').textContent = 'Session completed! Please let Tiffany know.';
-    document.getElementById('timer').textContent = 'Complete!';
   }
 }
 
-function updateTimerDisplay() {
-  const minutes = Math.floor(remainingSeconds / 60);
-  const seconds = remainingSeconds % 60;
+function updateTimerDisplay(secondsLeft) {
+  const minutes = Math.floor(secondsLeft / 60);
+  const seconds = secondsLeft % 60;
   document.getElementById('timer').textContent =
     `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
 
-// Handle page visibility change to pause/resume
-document.addEventListener('visibilitychange', function () {
-  if (isPlaying && context) {
-    if (document.hidden) {
-      if (context.state === 'running') {
-        context.suspend();
-      }
-    } else {
-      if (context.state === 'suspended') {
-        context.resume();
-      }
-    }
-  }
-});
-
 document.addEventListener('DOMContentLoaded', () => {
-  updateTimerDisplay();
+  updateTimerDisplay(totalSeconds);
 });
