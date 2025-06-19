@@ -26,6 +26,18 @@ h1 {
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 
+.instructions {
+  margin: 20px 0;
+  font-size: 1.1em;
+  opacity: 0.9;
+}
+
+.current-ear {
+  font-size: 1.3em;
+  margin: 15px 0;
+  font-weight: 500;
+}
+
 .frequency-info {
   margin-bottom: 30px;
   font-size: 1.2em;

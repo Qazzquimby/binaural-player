@@ -3,9 +3,14 @@ let context;
         let gainNode1, gainNode2;
         let merger;
         let isPlaying = false;
-        let timeRemaining = 600; // 10 minutes in seconds
+        const totalDuration = 20; // 60 minutes in seconds
+        let timeRemaining = totalDuration;
+        let currentEar = 'left'; // Track which ear is active
         let timerInterval;
         let startTime;
+
+
+
 
         // Initialize audio context
         function initAudioContext() {
@@ -72,8 +77,9 @@ let context;
                 stopSession();
             }
 
-            // Reset timer
-            timeRemaining = 600;
+            // Reset timer and ear
+            currentEar = 'left';
+            document.getElementById('currentEar').textContent = 'Left Ear Active';
             startTime = Date.now();
 
             // Create binaural beats
@@ -120,14 +126,20 @@ let context;
             timeRemaining--;
             updateTimerDisplay();
 
+            // Check if we need to switch ears at halfway point
+            if (timeRemaining <= totalDuration / 2 && currentEar === 'left') {
+                currentEar = 'right';
+                document.getElementById('currentEar').textContent = 'Right Ear Active';
+            }
+
             // Update progress bar
-            const progress = ((600 - timeRemaining) / 600) * 100;
+            const progress = ((totalDuration - timeRemaining) / totalDuration) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
 
             if (timeRemaining <= 0) {
                 stopSession();
-                document.getElementById('status').textContent = 'Session completed!';
-                document.getElementById('timer').textContent = 'Done!';
+                document.getElementById('status').textContent = 'Session completed! Please let Tiffany know.';
+                document.getElementById('timer').textContent = 'Complete!';
             }
         }
 
