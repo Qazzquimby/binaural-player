@@ -3,12 +3,14 @@ let context;
         let gainNode1, gainNode2;
         let merger;
         let isPlaying = false;
-        const totalDuration = 20; // 60 minutes in seconds
-        let timeRemaining = totalDuration;
+        const totalSeconds = 60*60;
+        let remainingSeconds = totalSeconds;
         let currentEar = 'left'; // Track which ear is active
         let timerInterval;
         let startTime;
 
+        const highTone = 60;
+        const lowTone = 20;
 
 
 
@@ -83,7 +85,7 @@ let context;
             startTime = Date.now();
 
             // Create binaural beats
-            createBinauralBeats(60, 20);
+            createBinauralBeats(highTone, lowTone);
 
             isPlaying = true;
             document.getElementById('startBtn').style.display = 'none';
@@ -113,30 +115,39 @@ let context;
             document.getElementById('startBtn').style.display = 'inline-block';
             document.getElementById('stopBtn').style.display = 'none';
             document.getElementById('status').textContent = 'Session stopped';
+            document.getElementById('currentEar').textContent = '';
 
             // Reset progress bar
             document.getElementById('progressFill').style.width = '0%';
 
             // Reset timer display
-            timeRemaining = 600;
+            remainingSeconds = totalSeconds;
             updateTimerDisplay();
         }
 
         function updateTimer() {
-            timeRemaining--;
+            remainingSeconds--;
             updateTimerDisplay();
 
             // Check if we need to switch ears at halfway point
-            if (timeRemaining <= totalDuration / 2 && currentEar === 'left') {
+            if (remainingSeconds <= totalSeconds / 2 && currentEar === 'left') {
                 currentEar = 'right';
                 document.getElementById('currentEar').textContent = 'Right Ear Active';
+
+                // Swap frequencies
+                if (oscillator1 && oscillator2) {
+                    const freq1 = oscillator1.frequency.value;
+                    const freq2 = oscillator2.frequency.value;
+                    oscillator1.frequency.value = freq2;
+                    oscillator2.frequency.value = freq1;
+                }
             }
 
             // Update progress bar
-            const progress = ((totalDuration - timeRemaining) / totalDuration) * 100;
+            const progress = ((totalSeconds - remainingSeconds) / totalSeconds) * 100;
             document.getElementById('progressFill').style.width = progress + '%';
 
-            if (timeRemaining <= 0) {
+            if (remainingSeconds <= 0) {
                 stopSession();
                 document.getElementById('status').textContent = 'Session completed! Please let Tiffany know.';
                 document.getElementById('timer').textContent = 'Complete!';
@@ -144,8 +155,8 @@ let context;
         }
 
         function updateTimerDisplay() {
-            const minutes = Math.floor(timeRemaining / 60);
-            const seconds = timeRemaining % 60;
+            const minutes = Math.floor(remainingSeconds / 60);
+            const seconds = remainingSeconds % 60;
             document.getElementById('timer').textContent =
                 `${minutes}:${seconds.toString().padStart(2, '0')}`;
         }
@@ -163,4 +174,8 @@ let context;
                     }
                 }
             }
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateTimerDisplay();
         });
