@@ -4,7 +4,7 @@ let gainNode1, gainNode2;
 let merger;
 let isPlaying = false;
 
-const totalSeconds = 60 * 60;
+const totalSeconds = 30 * 60;
 let totalElapsedSeconds = 0;
 let sessionSegmentStartTime;
 
