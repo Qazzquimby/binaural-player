@@ -33,6 +33,13 @@
             <div class="progress-fill" id="progressFill"></div>
         </div>
 
+        <div id="durationContainer" style="margin-bottom: 20px;">
+            <p>Select session duration (minutes):</p>
+            <button class="duration-btn" onclick="setDuration(30, this)">30</button>
+            <button class="duration-btn" onclick="setDuration(60, this)">60</button>
+            <button class="duration-btn" onclick="setDuration(90, this)">90</button>
+        </div>
+
         <button class="start-btn" id="startBtn" onclick="startSession()">Start Session</button>
         <button class="pause-btn" id="pauseBtn" onclick="pauseSession()" style="display: none;">Pause Session</button>
 

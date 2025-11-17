@@ -65,6 +65,18 @@ button {
   letter-spacing: 1px;
 }
 
+.duration-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  padding: 10px 20px;
+  font-size: 1em;
+}
+
+.duration-btn.active {
+    background: linear-gradient(45deg, #4CAF50, #45a049);
+    box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+}
+
 .start-btn {
   background: linear-gradient(45deg, #4CAF50, #45a049);
   color: white;

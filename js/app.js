@@ -4,7 +4,7 @@ let gainNode1, gainNode2;
 let merger;
 let isPlaying = false;
 
-const totalSeconds = 30 * 60;
+let totalSeconds = 30 * 60;
 let totalElapsedSeconds = 0;
 let sessionSegmentStartTime;
 
@@ -13,6 +13,14 @@ let timerInterval;
 
 const highTone = 120;
 const lowTone = 80;
+
+function setDuration(minutes, element) {
+  totalSeconds = minutes * 60;
+  updateTimerDisplay(totalSeconds);
+
+  document.querySelectorAll('.duration-btn').forEach(btn => btn.classList.remove('active'));
+  element.classList.add('active');
+}
 
 function initAudioContext() {
   if (context) return true;
@@ -77,8 +85,11 @@ function startSession() {
   sessionSegmentStartTime = Date.now();
 
   document.getElementById('startBtn').style.display = 'none';
+  document.getElementById('durationContainer').style.display = 'none';
   document.getElementById('pauseBtn').style.display = 'inline-block';
   document.getElementById('status').textContent = 'Session in progress...';
+
+  document.querySelectorAll('.duration-btn').forEach(btn => btn.disabled = true);
 
   timerInterval = setInterval(updateTimer, 1000);
   updateTimer();
@@ -104,8 +115,15 @@ function stopSession() {
   if (oscillator2) oscillator2.stop();
   clearInterval(timerInterval);
   isPlaying = false;
-  document.getElementById('status').textContent = 'Session completed! Please let Tiffany know.';
+  document.getElementById('status').textContent = 'Session completed!';
   document.getElementById('timer').textContent = 'Complete!';
+
+  document.getElementById('startBtn').style.display = 'inline-block';
+  document.getElementById('pauseBtn').style.display = 'none';
+  document.querySelectorAll('.duration-btn').forEach(btn => btn.disabled = false);
+
+  totalElapsedSeconds = 0;
+  currentEar = 'left';
 }
 
 function updateTimer() {
@@ -119,11 +137,15 @@ function updateTimer() {
 
   updateTimerDisplay(remainingSeconds);
 
-  if (remainingSeconds <= totalSeconds / 2 && currentEar === 'left') {
-    currentEar = 'right';
+  const fifteenMinutesInSeconds = 15 * 60;
+  const intervalsPassed = Math.floor(currentTotalElapsed / fifteenMinutesInSeconds);
+  const newEar = (intervalsPassed % 2 === 0) ? 'left' : 'right';
+
+  if (newEar !== currentEar) {
+    currentEar = newEar;
     if (oscillator1 && oscillator2) {
-      oscillator1.frequency.value = lowTone;
-      oscillator2.frequency.value = highTone;
+      oscillator1.frequency.value = (currentEar === 'left') ? highTone : lowTone;
+      oscillator2.frequency.value = (currentEar === 'left') ? lowTone : highTone;
     }
   }
 
@@ -144,4 +166,5 @@ function updateTimerDisplay(secondsLeft) {
 
 document.addEventListener('DOMContentLoaded', () => {
   updateTimerDisplay(totalSeconds);
+  document.querySelector('.duration-btn').classList.add('active');
 });
