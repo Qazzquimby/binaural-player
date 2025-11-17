@@ -11,8 +11,8 @@ let sessionSegmentStartTime;
 let currentEar = 'left';
 let timerInterval;
 
-const highTone = 60;
-const lowTone = 20;
+const highTone = 120;
+const lowTone = 80;
 
 function initAudioContext() {
   if (context) return true;
