@@ -39,9 +39,10 @@ h1 {
 }
 
 .frequency-info {
-  margin-bottom: 30px;
-  font-size: 1.2em;
-  opacity: 0.9;
+  margin-top: -2rem;
+
+  font-size: 1em;
+  opacity: 0.8;
 }
 
 .timer {

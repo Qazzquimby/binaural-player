@@ -11,8 +11,8 @@ let sessionSegmentStartTime;
 let currentEar = 'left';
 let timerInterval;
 
-const highTone = 120;
-const lowTone = 80;
+let highTone = 120;
+let lowTone = 80;
 
 function setDuration(minutes, element) {
   totalSeconds = minutes * 60;
@@ -165,6 +165,20 @@ function updateTimerDisplay(secondsLeft) {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const highToneParam = urlParams.get('highTone');
+  const lowToneParam = urlParams.get('lowTone');
+
+  if (highToneParam && !isNaN(parseInt(highToneParam, 10))) {
+    highTone = parseInt(highToneParam, 10);
+  }
+
+  if (lowToneParam && !isNaN(parseInt(lowToneParam, 10))) {
+    lowTone = parseInt(lowToneParam, 10);
+  }
+
+  document.getElementById('toneInfo').textContent = `${lowTone}Hz - ${highTone}Hz`;
+
   updateTimerDisplay(totalSeconds);
   document.querySelector('.duration-btn').classList.add('active');
 });
